@@ -149,7 +149,6 @@ const initLikeButtonListeners = () => {
   };
 };
 
-
 const renderComments = () => {
   if (comments.length === 0) {
     commentElement.textContent = "Пожалуйста подождите, комментарии загружаются...";
