@@ -7,6 +7,7 @@ const textInputElement = document.getElementById("text-input");
 const container = document.querySelector(".container");
 const addForm = document.querySelector(".add-form");
 
+
 // Подключаем приложение комментариев к API
 // fetch - запускает выполнение запроса к api
 const fetchPromise = () => {
