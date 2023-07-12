@@ -5,22 +5,87 @@ const commentElement = document.getElementById("list");
 const nameInputElement = document.getElementById("name-input");
 const textInputElement = document.getElementById("text-input");
 
-const comments = [
-{
-  name: "Глеб Фокин",
-  data: "12.02.22 12:18",
-  comment: "Это будет первый комментарий на этой странице",
-  likes: false,
-  numberLikes: 3
-},
-{
-  name: "Варвара Н.",
-  data: "13.02.22 19:22",
-  comment: "Мне нравится как оформлена эта страница! ❤ ",
-  likes: true,
-  numberLikes: 75
+// Подключаем приложение комментариев к API
+// fetch - запускает выполнение запроса к api
+const fetchPromise = () => {
+  return fetch('https://wedev-api.sky.pro/api/v1/nadya-terleeva/comments', {
+    method: "GET"
+  })
+    // подписываемся на успешное завершение запроса с помощью then
+    .then((response) => {
+
+      const jsonPromise = response.json();
+      jsonPromise.then((responseData) => {
+        // Преобразовываем данные из формата API в формат приложения
+        const appComments = responseData.comments.map((comment) => {
+          return {
+            // Достаем имя автора
+            name: comment.author.name,
+            // Преобразовываем дату строку в Data
+            data: formatDate(new Date(comment.date)),
+            comment: comment.text,
+            // В API пока вообще нет признака лайкнутости
+            // Поэтому пока добавляем заглушку
+            likes: false,
+            numberLikes: comment.likes
+          }
+        })
+
+        comments = appComments;
+        renderComments();
+      });
+    });
 }
+function formatDate(myDate) {
+  let date = myDate.getDate();
+  let month = myDate.getMonth() + 1;
+  let hour = myDate.getHours();
+  let minute = myDate.getMinutes();
+
+  if (date < 10) {
+    date = "0" + date;
+  }
+  if (month < 10) {
+    month = "0" + month;
+  }
+  if (hour < 10) {
+    hour = "0" + hour;
+  }
+  if (minute < 10) {
+    minute = "0" + minute;
+  }
+  return `${date}.${month}.${myDate.getFullYear().toString().substr(-2)} ${hour}:${minute}`;
+};
+
+let comments = [
 ]
+
+function appComment(userName, userComment, userData) {
+
+  commentElement.textContent = "Добавляем комментарий..."
+
+  const url = 'https://wedev-api.sky.pro/api/v1/nadya-terleeva/comments';
+  fetch(url, {
+    method: 'POST',
+    body: JSON.stringify({
+      name: userName,
+      text: userComment,
+      data: userData
+    }),
+  })
+    .then((response) => {
+      return response.json();
+    })
+    .then(() => {
+      fetchPromise();
+    })
+    .then(() => {
+      // обработка успешного выполнения запроса
+      nameInputElement.value = '';
+      textInputElement.value = '';
+      renderComments();
+    })
+}
 
 buttonElement.addEventListener("click", () => {
   nameInputElement.classList.remove("error")
@@ -35,39 +100,11 @@ buttonElement.addEventListener("click", () => {
     return;
   };
 
-  function formatDate(myDate) {
-    let date = myDate.getDate();
-    let month = myDate.getMonth() + 1;
-    let hour = myDate.getHours();
-    let minute = myDate.getMinutes();
+  const userName = nameInputElement.value;
+  const userComment = textInputElement.value;
+  const userData = formatDate(new Date());
 
-    if (date < 10) {
-      date = "0" + date;
-    }
-    if (month < 10) {
-      month = "0" + (month + 1);
-    }
-    if (hour < 10) {
-      hour = "0" + hour;
-    }
-    if (minute < 10) {
-      minute = "0" + minute;
-    }
-    return `${date}.${month}.${myDate.getFullYear().toString().substr(-2)} ${hour}:${minute}`;
-  }
-   comments.push({
-    name: nameInputElement.value,
-    data: formatDate(new Date()),
-    comment: textInputElement.value.replace(/</g, '&lt;').replace(/>/g, '&gt;'),
-    likes: false,
-    numberLikes: 0
-   })
-   
-   nameInputElement.value = "";
-   textInputElement.value = "";
-
-  renderComments(); 
-
+  appComment(userName, userComment, userData);
 });
 
 const initLikeButtonListeners = () => {
@@ -89,6 +126,11 @@ const initLikeButtonListeners = () => {
 };
 
 const renderComments = () => {
+  if (comments.length === 0) {
+    commentElement.textContent = "Пожалуйста подождите, комментарии загружаются...";
+    return;
+  }
+
   const commentsHtml = comments.map((comment, index) => {
     const commentTextQuotes = comment.comment.replaceAll("QUOTE_BEGIN", "<div class='quote'>").replaceAll("QUOTE_END", "</div>");
     const commentNameSafe = comment.name.replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -112,16 +154,15 @@ const renderComments = () => {
 
   commentElement.innerHTML = commentsHtml;
   initLikeButtonListeners();
-
   const commentElements = document.querySelectorAll('.comment');
   for (const commentElement of commentElements) {
     const index = commentElement.dataset.index;
     commentElement.addEventListener('click', () => {
-      const {name, comment} = comments[index];
+      const { name, comment } = comments[index];
       textInputElement.value = 'QUOTE_BEGIN' + ' (' + name + ') ...' + comment + '... ' + 'QUOTE_END' + ' ';
-        });
+    });
   };
-
 }
 
 renderComments();
+fetchPromise();
