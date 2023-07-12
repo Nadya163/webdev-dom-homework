@@ -76,12 +76,20 @@ function appComment(userName, userComment, userData) {
     body: JSON.stringify({
       name: userName,
       text: userComment,
-      data: userData
+      data: userData,
+      forceError: true
     }),
-  })   
-   .then((response) => {
-    return response.json();
   })
+  .then((response) => {
+    if (response.status === 400) {
+      alert("Имя или комментарий должены содержать хотя бы 3 символа");
+      throw new Error("Имя или комментарий должены содержать хотя бы 3 символа");
+    }
+    if (response.status === 500) {
+        throw new Error("Сервер сломался");
+    }
+    return response.json();
+    })  
     .then(() => {
       fetchPromise();
     })
@@ -95,12 +103,28 @@ function appComment(userName, userComment, userData) {
       // обработка успешного выполнения запроса
       nameInputElement.value = '';
       textInputElement.value = '';
+    })
+    .catch((error) => {
+      elem.parentNode.removeChild(elem);
+      addForm.classList.remove("hidden");
+
+      // Если сервер сломался, то просим попробовать позже
+      if (error.message === "Сервер сломался") {
+      alert("Сервер сломался, попробуй позже");
+      return;
+    } 
+    if (error.message === "Failed to fetch") {
+      alert("Кажется, у вас сломался интернет, попробуйте позже");
+      return;
+    }
+        // Во всех остальных случаях просто вывдим ошибку
+    console.warn(error);
     });
   renderComments();
 }
 
 buttonElement.addEventListener("click", () => {
-
+  
   nameInputElement.classList.remove("error")
   if (nameInputElement.value === "") {
     nameInputElement.classList.add("error");
