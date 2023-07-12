@@ -63,7 +63,6 @@ let comments = [
 ]
 
 function appComment(userName, userComment, userData) {
-
   addForm.classList.add("hidden");
 
   let elem = document.createElement("p"); // Добавляем созданный элемент
