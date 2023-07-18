@@ -4,6 +4,8 @@ const buttonElement = document.getElementById("add-button");
 const commentElement = document.getElementById("list");
 const nameInputElement = document.getElementById("name-input");
 const textInputElement = document.getElementById("text-input");
+const container = document.querySelector(".container");
+const addForm = document.querySelector(".add-form");
 
 // Подключаем приложение комментариев к API
 // fetch - запускает выполнение запроса к api
@@ -61,8 +63,12 @@ let comments = [
 ]
 
 function appComment(userName, userComment, userData) {
+  addForm.classList.add("hidden");
 
-  commentElement.textContent = "Добавляем комментарий..."
+  let elem = document.createElement("p"); // Добавляем созданный элемент
+  elem.textContent = "Пожалуйста подождите, комментарий добавляется..."; // Добавляем текст в созданный элемент
+  elem.classList.add("commentElem");
+  container.appendChild(elem);
 
   const url = 'https://wedev-api.sky.pro/api/v1/nadya-terleeva/comments';
   fetch(url, {
@@ -70,24 +76,55 @@ function appComment(userName, userComment, userData) {
     body: JSON.stringify({
       name: userName,
       text: userComment,
-      data: userData
+      data: userData,
+      forceError: true
     }),
   })
-    .then((response) => {
-      return response.json();
-    })
+  .then((response) => {
+    if (response.status === 400) {
+      alert("Имя или комментарий должены содержать хотя бы 3 символа");
+      throw new Error("Имя или комментарий должены содержать хотя бы 3 символа");
+    }
+    if (response.status === 500) {
+        throw new Error("Сервер сломался");
+    }
+    return response.json();
+    })  
     .then(() => {
       fetchPromise();
+    })
+    .then(() => {
+      return elem.parentNode.removeChild(elem);
+    })
+    .then(() => {
+      return addForm.classList.remove("hidden");
     })
     .then(() => {
       // обработка успешного выполнения запроса
       nameInputElement.value = '';
       textInputElement.value = '';
-      renderComments();
     })
+    .catch((error) => {
+      elem.parentNode.removeChild(elem);
+      addForm.classList.remove("hidden");
+
+      // Если сервер сломался, то просим попробовать позже
+      if (error.message === "Сервер сломался") {
+      alert("Сервер сломался, попробуй позже");
+      return;
+    } 
+    if (error.message === "Failed to fetch") {
+      alert("Кажется, у вас сломался интернет, попробуйте позже");
+      return;
+    }
+        // Во всех остальных случаях просто вывдим ошибку
+    console.warn(error);
+    });
+  renderComments();
 }
 
 buttonElement.addEventListener("click", () => {
+  
   nameInputElement.classList.remove("error")
   if (nameInputElement.value === "") {
     nameInputElement.classList.add("error");
@@ -107,20 +144,30 @@ buttonElement.addEventListener("click", () => {
   appComment(userName, userComment, userData);
 });
 
+const delay = (ms) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+};
+
 const initLikeButtonListeners = () => {
   for (const likeButton of document.querySelectorAll(".like-button")) {
     likeButton.addEventListener("click", (event) => {
+      console.log(likeButton);
       event.stopPropagation();
       const index = likeButton.dataset.index;
       const comment = comments[index];
-      if (comment.likes) {
+
+      delay(2000).then(() => {
+       if (comment.likes) {
         comment.likes = false;
         comment.numberLikes--;
-      } else {
-        comment.likes = true;
-        comment.numberLikes++;
+     } else { 
+      comment.likes = true;
+      comment.numberLikes++;
       };
-      renderComments();
+        renderComments();
+    })
     });
   };
 };
@@ -135,21 +182,21 @@ const renderComments = () => {
     const commentTextQuotes = comment.comment.replaceAll("QUOTE_BEGIN", "<div class='quote'>").replaceAll("QUOTE_END", "</div>");
     const commentNameSafe = comment.name.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     return `
-    <li class="comment" data-index=${index}>
+    <li class="comment" id="comment-add" data-index=${index}>
       <div class="comment-header">
-          <div>${commentNameSafe}</div>
-          <div>${comment.data}</div>
+        <div>${commentNameSafe}</div>
+        <div>${comment.data}</div>
+      </div>
+      <div class="comment-body">
+        <div class="comment-text" >${commentTextQuotes}</div>
+      </div>
+      <div class="comment-footer">
+        <div class="likes">
+          <span class="likes-counter" data-index=${index}>${comment.numberLikes}</span>
+          <button class="like-button${comment.likes ? " -active-like" : ""}" data-index=${index}></button>
         </div>
-        <div class="comment-body">
-          <div class="comment-text" >${commentTextQuotes}</div>
-        </div>
-        <div class="comment-footer">
-          <div class="likes">
-            <span class="likes-counter" data-index=${index}>${comment.numberLikes}</span>
-            <button class="like-button${comment.likes ? " -active-like" : ""}" data-index=${index}></button>
-          </div>
-        </div>
-      </li>`
+      </div>
+    </li>`
   }).join("");
 
   commentElement.innerHTML = commentsHtml;
