@@ -95,16 +95,6 @@ export function renderComment({ comments }) {
   nameInputElement.classList.add("inactive");
 
   buttonElement.addEventListener("click", () => {
-    const addForm = document.querySelector(".add-form");
-    const containerElement = document.querySelector(".container");
-
-    addForm.classList.add("hidden");
-
-    let elem = document.createElement("p"); // Добавляем созданный элемент
-    elem.textContent = "Пожалуйста подождите, комментарий добавляется..."; // Добавляем текст в созданный элемент
-    elem.classList.add("commentElem");
-    containerElement.appendChild(elem);
-
 
     nameInputElement.classList.remove("error")
     if (nameInputElement.value === "") {

@@ -39,6 +39,25 @@ export const renderReg = ({ fetchPromise }) => {
     })
 
     buttonElement.addEventListener("click", () => {
+
+      nameInputElement.classList.remove("error")
+      if (nameInputElement.value === "") {
+        nameInputElement.classList.add("error");
+          return;
+        };
+    
+        passwordInputElement.classList.remove("error")
+        if (passwordInputElement.value === "") {
+          passwordInputElement.classList.add("error");
+          return;
+        };
+
+                passwordInputElement.classList.remove("error")
+        if (passwordInputElement.value === "") {
+          passwordInputElement.classList.add("error");
+          return;
+        };
+
         registration({
           name: nameInputElement.value,
           login: loginInputElement.value,

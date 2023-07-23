@@ -36,6 +36,19 @@ export const renderLogin = ({ fetchPromise }) => {
     })
     
     buttonElement.addEventListener("click", () => {
+
+        loginInputElement.classList.remove("error")
+        if (loginInputElement.value === "") {
+            loginInputElement.classList.add("error");
+            return;
+          };
+      
+          passwordInputElement.classList.remove("error")
+          if (passwordInputElement.value === "") {
+            passwordInputElement.classList.add("error");
+            return;
+          };
+
         login({
             login: loginInputElement.value,
             password: passwordInputElement.value
@@ -47,6 +60,8 @@ export const renderLogin = ({ fetchPromise }) => {
         .then(() => {
             fetchPromise();
         })
+
+
     });
 }
 
