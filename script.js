@@ -122,9 +122,6 @@ export function appComment() {
       console.warn(error);
     });
 
-  renderComment({ comments });
 }
-
-// renderRegistr({ fetchPromise });
 
 export {fetchPromise};
