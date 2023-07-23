@@ -63,7 +63,7 @@ export const renderReg = ({ fetchPromise }) => {
           login: loginInputElement.value,
           password: passwordInputElement.value
         })
-          .then((responseData) => {
+                  .then((responseData) => {
             console.log(responseData);
             setToken(responseData.user.token);
             setLoggedInUserName(responseData.user.name);

@@ -1,5 +1,4 @@
 import { login, setToken } from "./api.js";
-import { fetchPromise } from "./script.js";
 import { renderReg } from "./registration.js";
 
 
@@ -60,8 +59,10 @@ export const renderLogin = ({ fetchPromise }) => {
         .then(() => {
             fetchPromise();
         })
-
-
+        .catch((error) => {
+            alert("Вы ввели неверный логин или пароль!");
+            console.error(error);
+        });
     });
 }
 
