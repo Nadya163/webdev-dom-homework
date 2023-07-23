@@ -112,6 +112,12 @@ body {
     padding: 11px 22px;
   }
 
+  
+  .add-form-name:hover {
+    outline: 0;
+    outline-offset: 0;
+}
+
   .add-form-text {
     margin-top: 12px;
     padding: 22px;
@@ -174,22 +180,37 @@ body {
     flex-direction: column;
   }
   
-  @keyframes rotating {
-    from {
-      transform: rotate(0deg);
-    }
-    25% {
-      transform: rotate(30deg);;
-    }
-    75% {
-      transform: rotate(-30deg);;
-    }
-    to {
-      transform: rotate(0deg);
-    }
-  }
-  
-  .-loading-like {
-    animation: rotating 2s linear infinite;
-  }
+.login-name {
+  margin-top: 10px;
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 8px;
+}
 
+.form-title {
+display: flex;
+justify-content: center;
+margin-top: 20px;
+color: #ffffff;
+}
+
+.login-text {
+  color: #ffffff;
+}
+
+.buttonAuthorization {
+  padding: 20px;
+  border: none;
+  font: inherit;
+  color: inherit;
+  background-color: transparent;
+  /* отображаем курсор в виде руки при наведении; некоторые
+  считают, что необходимо оставлять стрелочный вид для кнопок */
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.inactive {
+  background-color: rgb(156, 156, 156);
+  cursor: not-allowed;
+}

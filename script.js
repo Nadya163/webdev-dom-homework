@@ -1,21 +1,39 @@
-import { getTodos, postTodos } from "./api.js";
+import { getTodos, getTodosLogin, postTodos } from "./api.js";
 import { formatDate } from "./data.js";
-import { renderComments } from "./renderComment.js"
+import { renderComment } from "./renderComment.js"
+import { titleRenderComment } from "./titlePage.js"
 
 "use strict";
 console.log("It works!");
-const buttonElement = document.getElementById("add-button");
-// const commentElement = document.getElementById("list");
-const nameInputElement = document.getElementById("name-input");
-const textInputElement = document.getElementById("text-input");
-const container = document.querySelector(".container");
-const addForm = document.querySelector(".add-form");
 
+const titleFetchPromise = () => {
+  getTodos().then((responseData) => {
+    // Преобразовываем данные из формата API в формат приложения
+    const appComments = responseData.comments.map((comment) => {
+      return {
+        // Достаем имя автора
+        name: comment.author.name,
+        // Преобразовываем дату строку в Data
+        data: formatDate(new Date(comment.date)),
+        comment: comment.text,
+        // В API пока вообще нет признака лайкнутости
+        // Поэтому пока добавляем заглушку
+        likes: false,
+        numberLikes: comment.likes
+      }
+    })
+
+    comments = appComments;
+    titleRenderComment({ comments });
+});
+}
+
+titleFetchPromise();
 
 // Подключаем приложение комментариев к API
 // fetch - запускает выполнение запроса к api
 const fetchPromise = () => {
- getTodos().then((responseData) => {
+ getTodosLogin().then((responseData) => {
         // Преобразовываем данные из формата API в формат приложения
         const appComments = responseData.comments.map((comment) => {
           return {
@@ -32,22 +50,28 @@ const fetchPromise = () => {
         })
 
         comments = appComments;
-        renderComments({ comments });
-      });
-    };
+        renderComment({ comments });
+  });
+};
 
-    let currentDate = new Date(); // Создается объект текущей даты
-    formatDate(currentDate); // Передается аргумент с текущей датой
+let currentDate = new Date(); // Создается объект текущей даты
+formatDate(currentDate); // Передается аргумент с текущей датой
 
 let comments = [];
 
-function appComment() {
+export function appComment() {
+  const addForm = document.querySelector(".add-form");
+  const containerElement = document.querySelector(".container");
+
   addForm.classList.add("hidden");
 
   let elem = document.createElement("p"); // Добавляем созданный элемент
   elem.textContent = "Пожалуйста подождите, комментарий добавляется..."; // Добавляем текст в созданный элемент
   elem.classList.add("commentElem");
-  container.appendChild(elem);
+  containerElement.appendChild(elem);
+
+  const nameInputElement = document.getElementById("name-input");
+  const textInputElement = document.getElementById("text-input");
 
     postTodos({
       userName: nameInputElement.value,
@@ -62,7 +86,7 @@ function appComment() {
         throw new Error("Сервер сломался");
       }
       return response.json();
-    })      
+    })
      .then(() => {
       fetchPromise();
     })
@@ -98,29 +122,9 @@ function appComment() {
       console.warn(error);
     });
 
-  renderComments({ comments });
+  renderComment({ comments });
 }
 
-buttonElement.addEventListener("click", () => {
+// renderRegistr({ fetchPromise });
 
-  nameInputElement.classList.remove("error")
-  if (nameInputElement.value === "") {
-    nameInputElement.classList.add("error");
-    return;
-  };
-
-  textInputElement.classList.remove("error")
-  if (textInputElement.value === "") {
-    textInputElement.classList.add("error");
-    return;
-  };
-
-  const userName = nameInputElement.value;
-  const userComment = textInputElement.value;
-  const userData = formatDate(new Date());
-
-  appComment(userName, userComment, userData);
-});
-
-renderComments({ comments });
-fetchPromise();
+export {fetchPromise};

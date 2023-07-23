@@ -1,16 +1,17 @@
-export function renderComments({ comments, }) {
-    const commentElement = document.getElementById("list");
-    const textInputElement = document.getElementById("text-input")
-    if (comments.length === 0) {
-    
-      commentElement.textContent = "Пожалуйста подождите, комментарии загружаются...";
-      return;
-    }
-  
-    const commentsHtml = comments.map((comment, index) => {
-      const commentTextQuotes = comment.comment.replaceAll("QUOTE_BEGIN", "<div class='quote'>").replaceAll("QUOTE_END", "</div>");
-      const commentNameSafe = comment.name.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      return `
+import { appComment } from "./script.js";
+import { formatDate } from "./data.js";
+
+export function renderComment({ comments }) {
+  const appElement = document.getElementById("app");
+  if (comments.length === 0) {
+    appElement.innerHTML = "Пожалуйста подождите, комментарии загружаются...";
+    return;
+  }
+
+  const commentsHtml = comments.map((comment, index) => {
+    const commentTextQuotes = comment.comment.replaceAll("QUOTE_BEGIN", "<div class='quote'>").replaceAll("QUOTE_END", "</div>");
+    const commentNameSafe = comment.name.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return `
       <li class="comment" id="comment-add" data-index=${index}>
         <div class="comment-header">
           <div>${commentNameSafe}</div>
@@ -26,19 +27,33 @@ export function renderComments({ comments, }) {
           </div>
         </div>
       </li>`
-    })
+  })
     .join("");
-  
-    commentElement.innerHTML = commentsHtml;
-    initLikeButtonListeners({ comments });
-    const commentElements = document.querySelectorAll('.comment');
-    for (const commentElement of commentElements) {
-      const index = commentElement.dataset.index;
-      commentElement.addEventListener('click', () => {
-        const { name, comment } = comments[index];
-        textInputElement.value = 'QUOTE_BEGIN' + ' (' + name + ') ...' + comment + '... ' + 'QUOTE_END' + ' ';
-      });
-    };
+
+  const appHtml = `
+    <div class="container">
+      <ul class="comments" id="list">${commentsHtml}</ul>
+      <div class="add-form">
+        <input id="name-input" type="text" class="add-form-name" placeholder="Введите ваше имя" value="">
+        <textarea id="text-input" type="textarea" class="add-form-text" placeholder="Введите ваш коментарий"
+            rows="4"></textarea>
+        <div class="add-form-row">
+          <button class="add-form-button" id="add-button">Написать</button>
+        </div>
+      </div>
+    </div>
+    `;
+
+  appElement.innerHTML = appHtml;
+
+  initLikeButtonListeners({ comments });
+  const commentElements = document.querySelectorAll('.comment');
+  for (const commentElement of commentElements) {
+    const index = commentElement.dataset.index;
+    commentElement.addEventListener('click', () => {
+      const { name, comment } = comments[index];
+      textInputElement.value = 'QUOTE_BEGIN' + ' (' + name + ') ...' + comment + '... ' + 'QUOTE_END' + ' ';
+    });
   };
 
   const delay = (ms) => {
@@ -47,14 +62,15 @@ export function renderComments({ comments, }) {
     });
   };
 
- const initLikeButtonListeners = ({ comments }) => {
+  function initLikeButtonListeners({ comments }) {
     for (const likeButton of document.querySelectorAll(".like-button")) {
       likeButton.addEventListener("click", (event) => {
+
         console.log(likeButton);
         event.stopPropagation();
         const index = likeButton.dataset.index;
         const comment = comments[index];
-  
+
         delay(2000).then(() => {
           if (comment.likes) {
             comment.likes = false;
@@ -63,8 +79,49 @@ export function renderComments({ comments, }) {
             comment.likes = true;
             comment.numberLikes++;
           };
-          renderComments({ comments });
+          renderComment({ comments });
         })
       });
     };
   };
+
+  const textInputElement = document.getElementById("text-input");
+  const buttonElement = document.getElementById("add-button");
+  const commentElement = document.getElementById("list");
+  const nameInputElement = document.getElementById("name-input");
+  const loggedInUserName = localStorage.getItem("loggedInUserName");
+  nameInputElement.value = loggedInUserName;
+  nameInputElement.setAttribute("readonly", true);
+  nameInputElement.classList.add("inactive");
+
+  buttonElement.addEventListener("click", () => {
+    const addForm = document.querySelector(".add-form");
+    const containerElement = document.querySelector(".container");
+
+    addForm.classList.add("hidden");
+
+    let elem = document.createElement("p"); // Добавляем созданный элемент
+    elem.textContent = "Пожалуйста подождите, комментарий добавляется..."; // Добавляем текст в созданный элемент
+    elem.classList.add("commentElem");
+    containerElement.appendChild(elem);
+
+
+    nameInputElement.classList.remove("error")
+    if (nameInputElement.value === "") {
+      nameInputElement.classList.add("error");
+      return;
+    };
+
+    textInputElement.classList.remove("error")
+    if (textInputElement.value === "") {
+      textInputElement.classList.add("error");
+      return;
+    };
+
+    const userName = nameInputElement.value;
+    const userComment = textInputElement.value;
+    const userData = formatDate(new Date());
+
+    appComment(userName, userComment, userData);
+  });
+};
