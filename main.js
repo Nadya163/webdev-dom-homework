@@ -29,7 +29,7 @@ const titleFetchPromise = () => {
     })
 
     comments = appComments;
-    titleRenderComment({ comments });
+    titleRenderComment({ comments }); 
   });
 }
 
