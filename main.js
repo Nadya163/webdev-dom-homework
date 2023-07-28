@@ -5,9 +5,6 @@ import { titleRenderComment } from "./titlePage.js";
 import { format } from "date-fns";
 // yyyy-MM-dd hh.mm.ss
 
-const now = new Date();
-format(now, 'yyyy-MM-dd hh.mm.ss');
-
 "use strict";
 console.log("It works!");
 
@@ -45,7 +42,7 @@ const fetchPromise = () => {
         // Достаем имя автора
         name: comment.author.name,
         // Преобразовываем дату строку в Data
-        data: format(now, 'yyyy-MM-dd hh.mm.ss'),
+        data: format(new Date, 'yyyy-MM-dd hh.mm.ss'),
         comment: comment.text,
         // В API пока вообще нет признака лайкнутости
         // Поэтому пока добавляем заглушку
@@ -79,7 +76,7 @@ export function appComment() {
   postTodos({
     userName: nameInputElement.value,
     userComment: textInputElement.value,
-    userData: format(now, 'yyyy-MM-dd hh.mm.ss'),
+    userData: format(new Date, 'yyyy-MM-dd hh.mm.ss'),
   })
     .then((response) => {
       if (response.status === 400) {

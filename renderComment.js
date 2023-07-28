@@ -12,9 +12,7 @@ export function renderComment({ comments }) {
   const commentsHtml = comments.map((comment, index) => {
     const commentTextQuotes = comment.comment.replaceAll("QUOTE_BEGIN", "<div class='quote'>").replaceAll("QUOTE_END", "</div>");
     const commentNameSafe = comment.name.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const now = new Date();
-    format(now, 'yyyy-MM-dd hh.mm.ss');
-    const createDate = format(now, 'yyyy-MM-dd hh.mm.ss');
+    const createDate = format(new Date, 'yyyy-MM-dd hh.mm.ss');
 
     return `
       <li class="comment" id="comment-add" data-index=${index}>
@@ -100,8 +98,6 @@ export function renderComment({ comments }) {
   nameInputElement.classList.add("inactive");
 
   buttonElement.addEventListener("click", () => {
-    const now = new Date();
-    format(now, 'yyyy-MM-dd hh.mm.ss');
 
     nameInputElement.classList.remove("error")
     if (nameInputElement.value === "") {
@@ -117,7 +113,7 @@ export function renderComment({ comments }) {
 
     const userName = nameInputElement.value;
     const userComment = textInputElement.value;
-    const userData = format(now, 'yyyy-MM-dd hh.mm.ss');;
+    const userData = format(new Date, 'yyyy-MM-dd hh.mm.ss');
 
     appComment(userName, userComment, userData);
   });
