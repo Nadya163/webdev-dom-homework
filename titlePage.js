@@ -1,5 +1,5 @@
 import { renderLogin } from "./loginPage.js";
-import { fetchPromise } from "./script.js";
+import { fetchPromise } from "./main.js";
 
 // Функция для отрисовки первой страницы
 export function titleRenderComment({ comments }) {
@@ -25,8 +25,8 @@ export function titleRenderComment({ comments }) {
       </div>
     </li>`
   })
-  .join("");
-  
+    .join("");
+
   const appHtml = `
   <div class="container">
     <ul class="comments" id="list">${commentsHtml}</ul>
@@ -36,12 +36,12 @@ export function titleRenderComment({ comments }) {
   </div>
   `;
 
-appElement.innerHTML = appHtml;
+  appElement.innerHTML = appHtml;
 
-const buttonElement = document.getElementById("authorization-button");
+  const buttonElement = document.getElementById("authorization-button");
 
-buttonElement.addEventListener('click', () => {
-  console.log('click');
-  renderLogin({ fetchPromise });
-});
+  buttonElement.addEventListener('click', () => {
+    console.log('click');
+    renderLogin({ fetchPromise });
+  });
 };
