@@ -18,4 +18,4 @@ function formatDate (myDate) {
   }
   return `${date}.${month}.${myDate.getFullYear().toString().substr(-2)} ${hour}:${minute}`;
 }
-// export { formatDate };
+// export { formatDate }; 
