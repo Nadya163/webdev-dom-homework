@@ -1,5 +1,6 @@
-import { appComment } from "./script.js";
-import { formatDate } from "./data.js";
+import { appComment } from "./main.js";
+// import { formatDate } from "./data.js";
+import { format } from "date-fns";
 
 export function renderComment({ comments }) {
   const appElement = document.getElementById("app");
@@ -11,11 +12,13 @@ export function renderComment({ comments }) {
   const commentsHtml = comments.map((comment, index) => {
     const commentTextQuotes = comment.comment.replaceAll("QUOTE_BEGIN", "<div class='quote'>").replaceAll("QUOTE_END", "</div>");
     const commentNameSafe = comment.name.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const createDate = format(new Date, 'yyyy-MM-dd hh.mm.ss');
+
     return `
       <li class="comment" id="comment-add" data-index=${index}>
         <div class="comment-header">
           <div>${commentNameSafe}</div>
-          <div>${comment.data}</div>
+          <div>${createDate}</div>
         </div>
         <div class="comment-body">
           <div class="comment-text" >${commentTextQuotes}</div>
@@ -110,7 +113,7 @@ export function renderComment({ comments }) {
 
     const userName = nameInputElement.value;
     const userComment = textInputElement.value;
-    const userData = formatDate(new Date());
+    const userData = format(new Date, 'yyyy-MM-dd hh.mm.ss');
 
     appComment(userName, userComment, userData);
   });
